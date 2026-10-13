@@ -1,0 +1,51 @@
+from pydantic import BaseModel ,field_validator
+
+class pincodeRequest(BaseModel):
+    pincode:str
+
+    #picode must be exactly 6 digits
+
+    @field_validator("pincode")
+    @classmethod
+    def validate_pincode(cls,value):
+        if len(value)!=6 or not value.isdigits():
+            raise ValueError("Picode must be exactly 6 digit")
+        return value
+
+
+class LocationResponse(BaseModel):
+    pincode:str
+    city:str
+    state:str
+    district:str
+
+class BulkRequest(BaseModel):
+    pincode:list[str]
+
+    @field_validator("pincode")
+    @classmethod
+    def validate_pincode(cls,values):
+        if len(values)==0:
+            raise ValueError("At least one pincode is required")
+        if len(values)>20:
+            raise ValueError("Maximum 20 pincode allowed per request")
+
+        for code in values:
+            if len(code)!=6 or not code.isdigits():
+                        raise ValueError("Picode must be exactly 6 digit")
+
+        return values
+        
+        
+
+class BulkResponse(BaseModel):
+    pincode:str="success"
+    found:int
+    not_found:int
+    result:list[LocationResponse]
+    missing:list[str]
+
+
+
+
+    
